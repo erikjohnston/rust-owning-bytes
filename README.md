@@ -1,6 +1,9 @@
 owning-bytes
 ============
 
+A library that allows passing around a parsed object that depends on an
+underlying buffer.
+
 # Getting Started
 
 Add the following to your Cargo.toml:
