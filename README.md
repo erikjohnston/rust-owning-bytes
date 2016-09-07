@@ -21,11 +21,15 @@ Add the following to your Cargo.toml:
 git = "https://github.com/erikjohnston/rust-owning-bytes.git"
 ```
 
-# Example
+# Examples
+
+A simple example with a simple construction function:
 
 ```rust
 extern crate owning_bytes;
+
 use owning_bytes::OwningByteBuf;
+
 
 struct ExampleParsed<'a> {
     payload: &'a [u8],
@@ -41,5 +45,28 @@ fn main() {
     let parsed = create_from_vec(vec);
 
     assert_eq!(&parsed.get().payload, &[2, 3]);
+}
+```
+
+
+An example where construction can fail:
+
+```rust
+extern crate owning_bytes;
+
+use owning_bytes::OwningByteBuf;
+use std::str::{self, Utf8Error};
+
+
+fn create_from_vec(vec: Vec<u8>) -> Result<OwningByteBuf<&'static str>, Utf8Error> {
+    OwningByteBuf::from_vec_res(vec, str::from_utf8).map_err(|(err, _vec)| err)
+}
+
+fn main() {
+    let vec = b"Hello".to_vec();
+
+    let parsed = create_from_vec(vec).unwrap();
+
+    assert_eq!(*parsed.get(), "Hello");
 }
 ```
