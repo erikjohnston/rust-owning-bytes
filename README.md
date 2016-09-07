@@ -1,6 +1,8 @@
 owning-bytes
 ============
 
+[![Build Status](https://travis-ci.org/erikjohnston/rust-owning-bytes.svg?branch=master)](https://travis-ci.org/erikjohnston/rust-owning-bytes)
+
 A library that allows passing around a parsed object that depends on an
 underlying buffer.
 
