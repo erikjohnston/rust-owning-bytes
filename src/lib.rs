@@ -1,4 +1,4 @@
-#![feature(unique, alloc, heap_api)]
+#![feature(unique, alloc, heap_api, question_mark)]
 
 extern crate alloc;
 
@@ -34,6 +34,27 @@ impl<T> OwningByteBuf<T> {
         res
     }
 
+    pub fn from_vec_res<'a, F, E>(mut buf: Vec<u8>, f: F) -> Result<OwningByteBuf<T>, (E, Vec<u8>)>
+        where F: FnOnce(&'a[u8]) -> Result<T, E>
+    {
+        let res = unsafe {
+            let ptr = buf.as_mut_ptr();
+            let len = buf.len();
+            let cap = buf.capacity();
+            OwningByteBuf {
+                resource: Unique::new(ptr),
+                len: len,
+                cap: cap,
+                inner: match f(slice::from_raw_parts(ptr, len)) {
+                    Ok(t) => t,
+                    Err(e) => return Err((e, buf)),
+                },
+            }
+        };
+        mem::forget(buf);
+        Ok(res)
+    }
+
     pub fn from_box<'a, F>(mut buf: Box<[u8]>, f: F) -> OwningByteBuf<T> where F: FnOnce(&'a[u8]) -> T {
         let res = unsafe {
             let ptr = buf.as_mut_ptr();
@@ -49,13 +70,33 @@ impl<T> OwningByteBuf<T> {
         res
     }
 
+    pub fn from_box_res<'a, F, E>(mut buf: Box<[u8]>, f: F) -> Result<OwningByteBuf<T>, (E, Box<[u8]>)>
+        where F: FnOnce(&'a[u8]) -> Result<T, E>
+    {
+        let res = unsafe {
+            let ptr = buf.as_mut_ptr();
+            let len = buf.len();
+            OwningByteBuf {
+                resource: Unique::new(ptr),
+                len: len,
+                cap: len,
+                inner: match f(slice::from_raw_parts(ptr, len)) {
+                    Ok(t) => t,
+                    Err(e) => return Err((e, buf)),
+                },
+            }
+        };
+        mem::forget(buf);
+        Ok(res)
+    }
+
     pub fn get(&self) -> &T {
         &self.inner
     }
 
     pub fn into_vec(mut self) -> Vec<u8> {
         let vec = {
-            let OwningByteBuf { ref resource, len, cap, ref inner } = self;
+            let OwningByteBuf { ref resource, len, cap, .. } = self;
 
             unsafe {
                 Vec::from_raw_parts(**resource, len, cap)
@@ -99,16 +140,26 @@ mod tests {
 
     #[test]
     fn test() {
-
         let foo = {
             let vec = vec![0,1,2,3];
             OwningByteBuf::from_vec(vec, |buf| Test { buf: &buf[0..2] } )
         };
 
-        assert_eq!(foo.inner.buf, &[0, 1]);
+        assert_eq!(foo.get().buf, &[0, 1]);
 
         let vec = foo.into_vec();
 
         assert_eq!(vec, vec![0,1,2,3]);
+    }
+
+    #[test]
+    fn test_res() {
+        let vec = vec![0,1,2,3];
+        let res: Result<_,((),_)> = OwningByteBuf::from_vec_res(vec, |buf| Ok(Test { buf: &buf[0..2] }) );
+        assert_eq!(res.unwrap().get().buf, &[0, 1]);
+
+        let vec = vec![0,1,2,3];
+        let res: Result<OwningByteBuf<()>, _> = OwningByteBuf::from_vec_res(vec, |_| Err(()) );
+        assert!(res.is_err());
     }
 }
