@@ -6,12 +6,16 @@ owning-bytes
 A library that allows passing around a parsed object that depends on an
 underlying buffer.
 
+
+[Documentation](https://erikjohnston.github.io/rust-owning-bytes/owning_bytes/index.html)
+
+
 # Getting Started
 
 Add the following to your Cargo.toml:
-```
-[dependencies.owning-bytes]
 
+```toml
+[dependencies.owning-bytes]
 git = "https://github.com/erikjohnston/rust-owning-bytes.git"
 ```
 
