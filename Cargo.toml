@@ -1,0 +1,6 @@
+[package]
+name = "owning-bytes"
+version = "0.1.0"
+authors = ["Erik Johnston"]
+
+[dependencies]
