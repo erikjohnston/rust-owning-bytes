@@ -1,3 +1,19 @@
 language: rust
 rust:
-  - nightly
+- nightly
+before_script:
+- |
+  pip install 'travis-cargo<0.2' --user &&
+  export PATH=$HOME/.local/bin:$PATH
+script:
+- |
+  travis-cargo build &&
+  travis-cargo test &&
+  travis-cargo bench &&
+  travis-cargo --only nightly doc
+after_success:
+- travis-cargo --only nightly doc-upload
+env:
+  global:
+  - TRAVIS_CARGO_NIGHTLY_FEATURE=""
+  - secure: XpejGE/vFB3DxRZAuDVbLlVVXanwW4mPDO6msheNJ0G4iEOoIaz0sP1HLHjH9nnz9dmhobVazDCX1OPM2F/yU0GwQtd1/PaiGUHjfIbvWIfCQO+fNYvuc/795GYYxogKzDaO1/IVJrHhYxW1gYiLH3EPPHDEyE/QufYQEOGp7qrgIKwuy8bFLlsHQRH6equNzGgBM2SbXSp9wRLn+sNMShFe6rIEIt+XIlHGYAqSsQ2GsA+hf3gdmq2pN37y6zv5FxxNJfKu2K+BTk/rEzzjTpfts7CV8FIdCIjHRi99OlXDCiVW1BbRM0dufNjX+1XVjKFnjA2XCvkvNVxm1jZ+bc2+rCg81+EN/FwHfGJ+0zeJjh2G3Uwy9NpClV/FSF08kFRMZIcNvCZRX4/MPRDdN+tk4YFJ1tXUq0mBz2diqxRuTus55n6NvPUnAtFXjaKOueaQLbU8cEJ+GwOW47RdiiEsYoZA9mmzl16J6+xIMtNiC6SfgTfHkpFBvRis8KgWkuN6edHdSppRfhwT7i6UIv3AZtdASpe/OUBmRLQa+1gcTESvF4/ee/S/bLxdKgvrpDpjE3/05T0TX815PczuSSkhbDdjP9swDM2sC2DNhXSXZHV+1YVYq2Vv8l57k82tid/+grqmUXn7APTyyMlvgQk0lSlJ65jYQnhzzruqd6w=
