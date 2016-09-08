@@ -81,11 +81,13 @@ impl<T> OwningByteBuf<T> {
             let ptr = buf.as_mut_ptr();
             let len = buf.len();
             let cap = buf.capacity();
+            let inner = f(slice::from_raw_parts(ptr, len));
+
             OwningByteBuf {
                 resource: Unique::new(ptr),
                 len: len,
                 cap: cap,
-                inner: f(slice::from_raw_parts(ptr, len)),
+                inner: inner,
             }
         };
         mem::forget(buf);
