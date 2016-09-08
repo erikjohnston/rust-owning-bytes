@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["OwningByteBuf","A wrapper around an array of bytes and an object T that references those bytes."]]});
