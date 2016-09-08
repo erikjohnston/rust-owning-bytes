@@ -17,7 +17,7 @@ impl<'a> ExampleParsed<'a> {
         ExampleParsed {
             payload1: &buf[0..2],
             payload2: &buf[3..5],
-            _test: vec![0,1,2,3,4,5,6],
+            _test: vec![0, 1, 2, 3, 4, 5, 6],
         }
     }
 }
